@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#552078">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Misterio en la mansión — juego de lógica</title>
+<style>
+:root{--purple:#552078;--pink:#f1c9dc;--cream:#fff8e9;--ink:#25202a;--green:#cfe4c2;--peach:#f4c7a8;--blue:#c5dfeb}
+*{box-sizing:border-box}body{margin:0;background:#f5eff8;color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:var(--purple);color:white;padding:18px 16px 15px;text-align:center}
+header .eyebrow{font-size:11px;letter-spacing:2px;text-transform:uppercase;opacity:.85}
+h1{font-size:clamp(27px,7vw,38px);line-height:1;margin:7px 0 5px;letter-spacing:1px}
+header p{margin:0;font-size:13px}
+main{max-width:650px;margin:auto;padding:14px}
+.panel{background:white;border-radius:17px;padding:14px;margin-bottom:13px;box-shadow:0 3px 12px #34134c12}
+h2{font-size:17px;margin:0 0 8px}.sub{font-size:13px;color:#62596a;margin:0 0 12px;line-height:1.45}
+.pills{display:flex;gap:7px;flex-wrap:wrap}.pill{background:#f0e6f5;border-radius:99px;padding:6px 10px;font-size:12px;font-weight:650}
+.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.cell{min-height:74px;border:2px solid #38283c;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px;text-align:center;font-size:12px;font-weight:700;position:relative;cursor:pointer;user-select:none}
+.cell small{font-size:10px;font-weight:500;margin-top:3px}
+.cell.garden{background:var(--green)}.cell.lounge{background:var(--pink)}.cell.kitchen{background:var(--peach)}.cell.study{background:var(--blue)}
+.cell.marked:after{content:"✕";position:absolute;right:4px;top:0;font-size:24px;color:#b52d42;text-shadow:0 1px white}
+.cell.selected{outline:3px solid var(--purple);outline-offset:1px}
+.legend{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;font-size:11px}.legend span{display:flex;align-items:center;gap:4px}.swatch{width:10px;height:10px;border-radius:3px;display:inline-block}
+.clues{padding-left:20px;margin:0;font-size:13px;line-height:1.65}.clues li{padding-left:2px;margin:4px 0}
+button{border:0;border-radius:12px;background:var(--purple);color:white;font-weight:700;padding:12px 14px;font-size:14px;cursor:pointer}
+button.secondary{background:#eee5f3;color:var(--purple)}button:active{transform:scale(.98)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.feedback{font-size:13px;line-height:1.5;margin-top:10px;padding:10px;border-radius:10px;background:#f7f1fa;display:none}
+footer{text-align:center;color:#756a7d;font-size:11px;padding:4px 18px 24px}
+@media(max-width:390px){.cell{min-height:64px;font-size:11px}.cell small{font-size:9px}main{padding:10px}.panel{padding:12px}}
+</style>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {})); }</script>
+</head>
+<body>
+<header><div class="eyebrow">Un juego de lógica y misterio</div><h1>MISTERIOKU</h1><p>Un caso, una cuadrícula y tu deducción</p></header>
+<main>
+<section class="panel">
+ <div class="pills"><span class="pill">CASO 01</span><span class="pill">Fácil</span><span class="pill">Demo jugable</span></div>
+ <h2 style="margin-top:10px">El secreto de la mansión</h2>
+ <p class="sub">Ha desaparecido el diamante de la mansión. Toca una casilla para marcarla con una ✕ mientras descartas posibilidades. Vuelve a tocarla para quitar la marca.</p>
+ <div class="board" id="board" aria-label="Cuadrícula de habitaciones"></div>
+ <div class="legend">
+  <span><i class="swatch" style="background:var(--green)"></i> Jardín</span>
+  <span><i class="swatch" style="background:var(--pink)"></i> Salón</span>
+  <span><i class="swatch" style="background:var(--peach)"></i> Cocina</span>
+  <span><i class="swatch" style="background:var(--blue)"></i> Biblioteca</span>
+ </div>
+ <div class="actions"><button id="hint">Dame una pista</button><button class="secondary" id="reset">Reiniciar marcas</button></div>
+ <div class="feedback" id="feedback" role="status"></div>
+</section>
+<section class="panel">
+ <h2>🕵️ Pistas del caso</h2>
+ <ol class="clues">
+  <li>El diamante no está en el jardín ni en la cocina.</li>
+  <li>La persona que entró en la biblioteca no llevaba bolso.</li>
+  <li>La última persona vista cerca del salón llevaba una chaqueta roja.</li>
+  <li>El objeto desaparecido se escondió en una habitación con una ventana.</li>
+ </ol>
+ <p class="sub" style="margin-top:10px">Esta primera demo prueba la cuadrícula táctil y la experiencia en móvil. En la versión completa añadiremos personajes, objetos, pistas conectadas y una solución lógica verificable para cada caso.</p>
+</section>
+<section class="panel">
+ <h2>¿Cómo se juega?</h2>
+ <p class="sub" style="margin-bottom:0">Lee las pistas, elimina las casillas imposibles y usa la lógica para resolver el misterio. La demo es un prototipo inicial: las pistas de arriba son de muestra y todavía no determinan una única solución.</p>
+</section>
+</main>
+<footer>Prototipo original de juego de lógica. Inspirado en el género de los misterios de cuadrícula; no reproduce el tablero del libro.</footer>
+<script>
+const rooms=[
+ ['🌿','Jardín','garden'],['🛋️','Salón','lounge'],['🍳','Cocina','kitchen'],['📚','Biblioteca','study'],
+ ['🛋️','Salón','lounge'],['📚','Biblioteca','study'],['🌿','Jardín','garden'],['🍳','Cocina','kitchen'],
+ ['🍳','Cocina','kitchen'],['🌿','Jardín','garden'],['📚','Biblioteca','study'],['🛋️','Salón','lounge'],
+ ['📚','Biblioteca','study'],['🍳','Cocina','kitchen'],['🛋️','Salón','lounge'],['🌿','Jardín','garden']
+];
+const board=document.getElementById('board');
+rooms.forEach((r,i)=>{const b=document.createElement('button');b.type='button';b.className='cell '+r[2];b.innerHTML=`<span>${r[0]}</span><span>${r[1]}</span><small>Zona ${i+1}</small>`;b.setAttribute('aria-label',`Zona ${i+1}, ${r[1]}. Toca para marcar o desmarcar`);b.addEventListener('click',()=>{b.classList.toggle('marked');});board.appendChild(b)});
+const feedback=document.getElementById('feedback');
+document.getElementById('hint').addEventListener('click',()=>{feedback.style.display='block';feedback.textContent='Pista inicial: empieza descartando todas las casillas del jardín y de la cocina. En la versión completa, las pistas se actualizarán según tus deducciones.'});
+document.getElementById('reset').addEventListener('click',()=>{document.querySelectorAll('.cell').forEach(c=>c.classList.remove('marked'));feedback.style.display='none';});
+</script>
+</body></html>

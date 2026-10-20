@@ -3,221 +3,323 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#171426">
-<title>MisterioKU - Resuelve el misterio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#171923">
+<title>MisterioKU</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#171426;color:#f8f4ff;font-family:system-ui,Arial,sans-serif}
-header{text-align:center;padding:26px 15px 18px;background:#211c37;border-bottom:1px solid #44365e}
-.logo{font-size:13px;letter-spacing:5px;color:#d9b9ff}
-h1{margin:8px 0;font-size:34px}
-header p{color:#c9bfdc;margin:0}
-main{max-width:720px;margin:auto;padding:20px 15px 45px}
-.card{background:#252039;border:1px solid #44365e;border-radius:18px;padding:20px;margin-bottom:16px}
-.eyebrow{color:#d6b4ff;font-size:12px;letter-spacing:2px;font-weight:bold}
-h2{margin:9px 0;font-size:25px}
-p{line-height:1.55}
-.muted{color:#c7bfd8}
-.clue{padding:11px 12px;margin:8px 0;background:#1b182c;border-radius:10px;line-height:1.5}
-label{display:block;font-weight:600;margin:15px 0 7px}
-select{width:100%;padding:13px;border-radius:10px;border:1px solid #655580;background:#171426;color:white;font-size:16px}
-button{border:0;border-radius:11px;padding:13px 16px;font-weight:700;font-size:15px;cursor:pointer}
-.primary{background:#d8b7ff;color:#241632}
-.secondary{background:#39304f;color:white;border:1px solid #655580}
-.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
-.actions button{flex:1}
-#feedback{margin-top:14px;padding:12px;border-radius:10px;display:none;line-height:1.5}
-.good{background:#183b30;color:#c8ffe4}
-.bad{background:#492b35;color:#ffe0e5}
-.progress{height:7px;background:#413752;border-radius:10px;overflow:hidden;margin-top:13px}
-#bar{height:100%;width:0;background:#d8b7ff;transition:width .3s}
-footer{text-align:center;color:#a99fbd;font-size:12px;padding:0 15px 25px}
+:root {
+  --bg:#11131b; --panel:#1d202c; --panel2:#272b3a;
+  --text:#f5f2eb; --muted:#b6bacb; --gold:#f0c674;
+  --red:#ff7777; --green:#83dfb1; --line:#41465a;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:system-ui,-apple-system,Segoe UI,sans-serif;
+}
+header {
+  padding:22px 16px; text-align:center;
+  background:linear-gradient(140deg,#27243b,#171923);
+  border-bottom:1px solid var(--line);
+}
+.logo { font-size:30px; font-weight:900; letter-spacing:2px; }
+.logo span { color:var(--gold); }
+header p { margin:7px 0 0; color:var(--muted); font-size:14px; }
+main { max-width:1050px; margin:auto; padding:16px; }
+.casebar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:15px; }
+.casepill {
+  border:1px solid var(--line); border-radius:20px;
+  padding:8px 12px; color:var(--muted); font-size:13px;
+}
+.casepill.active { background:var(--gold); color:#171923; border-color:var(--gold); font-weight:800; }
+.casepill.done { border-color:var(--green); color:var(--green); }
+.panel {
+  background:var(--panel); border:1px solid var(--line);
+  border-radius:16px; padding:18px; margin-bottom:16px;
+}
+.eyebrow { color:var(--gold); font-size:12px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; }
+h1 { font-size:clamp(24px,5vw,35px); margin:7px 0 12px; }
+h2 { font-size:20px; margin:0 0 10px; }
+p { line-height:1.55; }
+.story { color:#e0deea; }
+.clues { padding-left:24px; margin-bottom:0; }
+.clues li { margin:9px 0; line-height:1.45; }
+.clues li.revealed { color:var(--gold); font-weight:700; }
+.note { color:var(--muted); font-size:13px; }
+.gridpanel { overflow:hidden; }
+.gridwrap { overflow-x:auto; padding-bottom:5px; }
+table { border-collapse:separate; border-spacing:4px; min-width:100%; }
+th,td { text-align:center; padding:0; }
+th { font-size:12px; color:var(--muted); font-weight:700; min-width:64px; }
+th:first-child { min-width:94px; text-align:left; padding-left:5px; }
+td:first-child { text-align:left; font-size:13px; font-weight:700; padding:0 5px; white-space:nowrap; }
+.cell {
+  width:100%; min-width:58px; height:48px; border:1px solid var(--line);
+  border-radius:9px; background:var(--panel2); color:var(--text);
+  font-size:23px; font-weight:900; cursor:pointer;
+}
+.cell:focus-visible { outline:3px solid var(--gold); }
+.cell.x { color:var(--red); background:#38252f; }
+.cell.yes { color:var(--green); background:#1d3b35; border-color:#397a65; }
+.legend { display:flex; gap:15px; flex-wrap:wrap; margin-top:10px; font-size:13px; color:var(--muted); }
+.legend b { font-size:17px; }
+.actions { display:flex; gap:10px; flex-wrap:wrap; margin:16px 0; }
+button.action {
+  border:0; border-radius:11px; padding:13px 16px; font-size:14px;
+  font-weight:800; cursor:pointer;
+}
+.primary { background:var(--gold); color:#171923; }
+.secondary { background:var(--panel2); color:var(--text); border:1px solid var(--line)!important; }
+button:disabled { opacity:.45; cursor:not-allowed; }
+#message {
+  display:none; border-radius:12px; padding:14px; margin:12px 0;
+  line-height:1.5;
+}
+#message.show { display:block; }
+#message.good { background:#1d3b35; color:var(--green); }
+#message.bad { background:#38252f; color:#ffaaaa; }
+#hintbox { color:var(--gold); margin-top:12px; }
+footer { text-align:center; color:var(--muted); font-size:12px; padding:20px; }
+@media(max-width:480px) {
+  main { padding:10px; }
+  .panel { padding:13px; border-radius:13px; }
+  .cell { min-width:52px; height:44px; }
+  th { min-width:56px; font-size:11px; }
+  th:first-child { min-width:82px; }
+  td:first-child { font-size:12px; }
+  .actions button { flex:1; }
+}
 </style>
 </head>
 <body>
 <header>
-  <div class="logo">JUEGO DE INVESTIGACIÓN</div>
-  <h1>🔎 MisterioKU</h1>
-  <p>Observa las pistas. Descubre la verdad.</p>
+  <div class="logo">MISTERIO<span>KU</span> 🔎</div>
+  <p>Lee las pistas. Cruza los datos. Resuelve el misterio.</p>
 </header>
+
 <main>
-  <section class="card">
-    <div class="eyebrow" id="level">CASO 1 DE 3</div>
-    <h2 id="title">El secreto de la mansión</h2>
-    <p id="story"></p>
-    <div class="progress"><div id="bar"></div></div>
+  <div class="casebar" id="casebar"></div>
+
+  <section class="panel">
+    <div class="eyebrow" id="caseNumber"></div>
+    <h1 id="caseTitle"></h1>
+    <p class="story" id="story"></p>
   </section>
 
-  <section class="card">
-    <div class="eyebrow">🕵️ INFORME DE INVESTIGACIÓN</div>
-    <h2>Las pistas</h2>
-    <div id="clues"></div>
-    <div class="actions">
-      <button class="secondary" id="hint">💡 Dame una pista</button>
-      <button class="secondary" id="reset">↻ Borrar respuestas</button>
-    </div>
-    <p class="muted" id="hintText" aria-live="polite"></p>
+  <section class="panel">
+    <h2>📜 Las pistas</h2>
+    <p class="note">Lee cada pista con atención. Puedes volver a consultarlas cuando quieras.</p>
+    <ol class="clues" id="clues"></ol>
+    <button class="action secondary" id="hintBtn">💡 Necesito una pista</button>
+    <div id="hintbox"></div>
   </section>
 
-  <section class="card">
-    <div class="eyebrow">TU DEDUCCIÓN</div>
-    <h2>¿Quién lo hizo?</h2>
-    <label for="suspect">Sospechoso</label>
-    <select id="suspect"></select>
-    <label for="room">Habitación</label>
-    <select id="room"></select>
-    <label for="object">Objeto relacionado</label>
-    <select id="object"></select>
-    <div class="actions">
-      <button class="primary" id="check">Comprobar respuesta</button>
-    </div>
-    <div id="feedback" aria-live="polite"></div>
-    <div class="actions" id="nextArea" hidden>
-      <button class="primary" id="next">Siguiente misterio →</button>
-    </div>
+  <section class="panel gridpanel">
+    <h2>🏠 Cuadrícula 1: ¿Dónde estaba cada sospechoso?</h2>
+    <p class="note">Cada persona estuvo en un lugar diferente. Marca las posibilidades que descartes con X y la solución que deduzcas con ✓.</p>
+    <div class="gridwrap" id="roomsGrid"></div>
+    <div class="legend"><span><b style="color:var(--red)">X</b> Descartado</span><span><b style="color:var(--green)">✓</b> Deducción</span><span>Casilla vacía = sin resolver</span></div>
   </section>
+
+  <section class="panel gridpanel">
+    <h2>🗝️ Cuadrícula 2: ¿Qué objeto tenía cada sospechoso?</h2>
+    <p class="note">Utiliza las pistas para relacionar a cada persona con un único objeto.</p>
+    <div class="gridwrap" id="objectsGrid"></div>
+  </section>
+
+  <div class="actions">
+    <button class="action primary" id="checkBtn">🔍 Comprobar solución</button>
+    <button class="action secondary" id="resetBtn">↻ Borrar mis marcas</button>
+    <button class="action primary" id="nextBtn" hidden>Siguiente caso →</button>
+  </div>
+  <div id="message" role="status" aria-live="polite"></div>
 </main>
-<footer>Prototipo original de MisterioKU · Nuevos casos por descubrir</footer>
+
+<footer>MisterioKU · Resuelve cada caso usando la lógica, no la suerte.</footer>
+
 <script>
 const cases = [
-{
- title:"El secreto de la mansión",
- story:"Ha desaparecido el diamante de la mansión. Descubre quién lo escondió, dónde y qué objeto utilizó para transportarlo.",
- suspects:["Clara","Bruno","Elena","Marcos"],
- rooms:["Jardín","Salón","Cocina","Biblioteca"],
- objects:["Bolso","Caja","Mochila","Maletín"],
- answer:["Elena","Biblioteca","Caja"],
- clues:[
- "Clara estaba en el jardín cuando desapareció el diamante.",
- "Bruno se encontraba en la cocina y no salió de allí.",
- "Marcos fue visto en el salón. Elena fue la única persona que entró en la biblioteca.",
- "El diamante estaba escondido dentro de una caja."
- ],
- hints:[
- "Descarta a Clara y a Bruno por sus ubicaciones.",
- "Compara las habitaciones mencionadas con las opciones de respuesta.",
- "La última pista identifica el objeto. Las pistas de ubicación señalan a Elena y la biblioteca."
- ]
-},
-{
- title:"El reloj desaparecido",
- story:"Un reloj antiguo ha desaparecido durante una cena. Averigua quién lo tomó, en qué habitación y dónde lo guardó.",
- suspects:["Lucía","Diego","Marta","Pablo"],
- rooms:["Terraza","Despacho","Comedor","Dormitorio"],
- objects:["Cajón","Bolso","Baúl","Estuche"],
- answer:["Marta","Despacho","Estuche"],
- clues:[
- "Lucía permaneció en la terraza durante toda la cena.",
- "Diego no entró en el despacho ni en el dormitorio.",
- "Pablo estuvo en el comedor. Marta fue vista entrando sola en el despacho.",
- "El reloj se encontró protegido dentro de un estuche."
- ],
- hints:[
- "Lucía y Diego quedan descartados por las primeras pistas.",
- "La ubicación de Pablo lo descarta como responsable.",
- "La habitación y el objeto se indican en las dos últimas pistas."
- ]
-},
-{
- title:"El misterio del museo",
- story:"Una joya ha desaparecido de una exposición privada. Resuelve el último caso para convertirte en detective de MisterioKU.",
- suspects:["Andrés","Sofía","Hugo","Irene"],
- rooms:["Archivo","Galería","Laboratorio","Almacén"],
- objects:["Sobre","Mochila","Carpeta","Maletín"],
- answer:["Irene","Almacén","Carpeta"],
- clues:[
- "Andrés estuvo en la galería y no entró en otras salas.",
- "Sofía permaneció en el laboratorio acompañada por un vigilante.",
- "Hugo fue visto en el archivo. Irene fue la única persona que accedió al almacén.",
- "La joya apareció oculta dentro de una carpeta."
- ],
- hints:[
- "Las pistas descartan a Andrés y a Sofía.",
- "Hugo estaba en el archivo, no en el almacén.",
- "La última pista revela el objeto utilizado."
- ]
-}
+  {
+    title:"El secreto de la mansión",
+    story:"Durante una recepción en una antigua mansión desaparece una joya. Cuatro personas estaban en distintas habitaciones y cada una tenía un objeto diferente. Averigua dónde estaba cada sospechoso y qué objeto tenía para reconstruir lo ocurrido.",
+    people:["Alba","Bruno","Carmen","Diego"],
+    rooms:["Jardín","Salón","Cocina","Biblioteca"],
+    objects:["Llave","Vela","Carta","Medallón"],
+    // Índices: Jardín=0, Salón=1, Cocina=2, Biblioteca=3
+    roomSolution:[3,2,0,1],
+    // Índices: Llave=0, Vela=1, Carta=2, Medallón=3
+    objectSolution:[0,1,2,3],
+    clues:[
+      "Bruno estaba en la Cocina.",
+      "Diego no estaba ni en el Jardín ni en la Biblioteca.",
+      "Carmen no estaba ni en la Cocina ni en el Salón.",
+      "La persona que estaba en la Biblioteca tenía la Llave.",
+      "La persona que tenía la Carta estaba en el Jardín.",
+      "Alba no tenía ni la Carta ni la Vela.",
+      "Diego no tenía la Vela."
+    ]
+  },
+  {
+    title:"El enigma del museo",
+    story:"En el museo ha desaparecido una pieza durante una visita privada. Iris, Mateo, Nora y Óscar estaban en diferentes salas y cada uno llevaba un objeto. Sigue las pistas para descubrir sus posiciones y relacionar cada persona con su objeto.",
+    people:["Iris","Mateo","Nora","Óscar"],
+    rooms:["Jardín","Salón","Cocina","Biblioteca"],
+    objects:["Cámara","Anillo","Guante","Nota"],
+    roomSolution:[1,0,3,2],
+    objectSolution:[0,1,2,3],
+    clues:[
+      "Óscar estaba en la Cocina.",
+      "Iris no estaba ni en el Jardín ni en la Biblioteca.",
+      "Nora no estaba ni en la Cocina ni en el Salón.",
+      "Mateo no estaba en la Biblioteca.",
+      "La persona que estaba en el Salón llevaba la Cámara.",
+      "La persona que llevaba el Guante estaba en la Biblioteca.",
+      "Óscar tenía la Nota.",
+      "Mateo no tenía ni la Cámara ni la Nota."
+    ]
+  },
+  {
+    title:"El misterio del faro",
+    story:"Tras una noche de tormenta, encuentran una caja abierta en el faro. Leo, Mara, Pablo y Sara estaban en distintas zonas y cada uno tenía un objeto. Resuelve las cuadrículas para descubrir cómo se relacionan las pistas.",
+    people:["Leo","Mara","Pablo","Sara"],
+    rooms:["Jardín","Salón","Cocina","Biblioteca"],
+    objects:["Llave","Mapa","Reloj","Carta"],
+    roomSolution:[0,1,2,3],
+    objectSolution:[0,1,2,3],
+    clues:[
+      "Pablo estaba en la Cocina.",
+      "Sara no estaba ni en el Jardín ni en el Salón.",
+      "Mara no estaba en la Biblioteca.",
+      "La persona que tenía el Mapa estaba en el Salón.",
+      "Pablo tenía el Reloj.",
+      "Sara tenía la Carta.",
+      "Leo no tenía ni el Mapa ni la Carta."
+    ]
+  }
 ];
-let current=0, hintIndex=0, solved=[false,false,false];
-const $=id=>document.getElementById(id);
-function fillSelect(id,items,label){
- const el=$(id);el.innerHTML="";
- const first=document.createElement("option");
- first.value="";first.textContent="Elige una opción";
- el.appendChild(first);
- items.forEach(item=>{
-  const op=document.createElement("option");
-  op.value=item;op.textContent=item;el.appendChild(op);
- });
+
+let current = 0;
+let roomMarks = [];
+let objectMarks = [];
+let revealedHint = -1;
+let solved = [false,false,false];
+
+const $ = id => document.getElementById(id);
+
+function emptyMarks() {
+  return Array.from({length:4}, () => Array(4).fill(""));
 }
-function render(){
- const c=cases[current];
- $("level").textContent="CASO "+(current+1)+" DE "+cases.length;
- $("title").textContent=c.title;
- $("story").textContent=c.story;
- $("clues").innerHTML="";
- c.clues.forEach((clue,i)=>{
-  const div=document.createElement("div");
-  div.className="clue";
-  div.textContent=(i+1)+". "+clue;
-  $("clues").appendChild(div);
- });
- fillSelect("suspect",c.suspects);
- fillSelect("room",c.rooms);
- fillSelect("object",c.objects);
- $("hintText").textContent="";
- $("feedback").style.display="none";
- $("nextArea").hidden=true;
- $("check").disabled=false;
- $("hint").disabled=false;
- $("bar").style.width=(solved.filter(Boolean).length/cases.length*100)+"%";
- $("next").textContent=current===cases.length-1?"Volver a jugar ↻":"Siguiente misterio →";
+function resetMarks() {
+  roomMarks = emptyMarks();
+  objectMarks = emptyMarks();
 }
-$("hint").addEventListener("click",()=>{
- const c=cases[current];
- $("hintText").textContent=hintIndex<c.hints.length?c.hints[hintIndex]:"Lee otra vez todas las pistas y compara tus deducciones.";
- hintIndex++;
+function renderCaseBar() {
+  $("casebar").innerHTML = cases.map((c,i) => {
+    let cls = "casepill";
+    if (i === current) cls += " active";
+    if (solved[i]) cls += " done";
+    return `<span class="${cls}">${solved[i] ? "✓ " : ""}Caso ${i+1}</span>`;
+  }).join("");
+}
+function renderGrid(containerId, columns, marks, type) {
+  const c = cases[current];
+  let html = "<table><thead><tr><th>Sospechoso</th>";
+  columns.forEach(col => html += `<th>${col}</th>`);
+  html += "</tr></thead><tbody>";
+  c.people.forEach((person,r) => {
+    html += `<tr><td>${person}</td>`;
+    columns.forEach((col,k) => {
+      const mark = marks[r][k];
+      const cls = mark === "X" ? "cell x" : mark === "✓" ? "cell yes" : "cell";
+      const label = mark === "X" ? "Descartado" : mark === "✓" ? "Seleccionado" : "Sin marcar";
+      html += `<td><button class="${cls}" data-type="${type}" data-row="${r}" data-col="${k}" aria-label="${person}, ${col}: ${label}">${mark}</button></td>`;
+    });
+    html += "</tr>";
+  });
+  html += "</tbody></table>";
+  $(containerId).innerHTML = html;
+}
+function render() {
+  const c = cases[current];
+  $("caseNumber").textContent = `CASO ${current+1} DE ${cases.length}`;
+  $("caseTitle").textContent = c.title;
+  $("story").textContent = c.story;
+  $("clues").innerHTML = c.clues.map((clue,i) =>
+    `<li class="${i <= revealedHint ? "revealed" : ""}">${clue}</li>`
+  ).join("");
+  $("hintbox").textContent = revealedHint >= 0
+    ? "Pista destacada: " + c.clues[revealedHint]
+    : "";
+  renderGrid("roomsGrid",c.rooms,roomMarks,"room");
+  renderGrid("objectsGrid",c.objects,objectMarks,"object");
+  renderCaseBar();
+  $("nextBtn").hidden = !solved[current] || current === cases.length-1;
+  $("checkBtn").disabled = solved[current];
+  $("message").className = "";
+  $("message").textContent = "";
+  $("message").style.display = "none";
+}
+function cycleMark(type,r,k) {
+  if (solved[current]) return;
+  const marks = type === "room" ? roomMarks : objectMarks;
+  const sequence = ["","X","✓"];
+  marks[r][k] = sequence[(sequence.indexOf(marks[r][k])+1)%sequence.length];
+  render();
+}
+function isGridCorrect(marks,solution) {
+  for(let r=0;r<4;r++) {
+    for(let k=0;k<4;k++) {
+      if(k === solution[r] && marks[r][k] !== "✓") return false;
+      if(k !== solution[r] && marks[r][k] === "✓") return false;
+    }
+  }
+  return true;
+}
+function showMessage(text,kind) {
+  $("message").textContent = text;
+  $("message").className = "show " + kind;
+  $("message").style.display = "block";
+}
+document.addEventListener("click",e => {
+  const btn = e.target.closest("button[data-type]");
+  if(btn) cycleMark(btn.dataset.type,Number(btn.dataset.row),Number(btn.dataset.col));
 });
-$("reset").addEventListener("click",()=>{
- ["suspect","room","object"].forEach(id=>$(id).value="");
- $("feedback").style.display="none";
- $("nextArea").hidden=true;
+$("hintBtn").addEventListener("click",() => {
+  const c = cases[current];
+  revealedHint = (revealedHint + 1) % c.clues.length;
+  render();
 });
-$("check").addEventListener("click",()=>{
- const c=cases[current];
- const feedback=$("feedback");
- feedback.style.display="block";
- if(!$("suspect").value||!$("room").value||!$("object").value){
-  feedback.className="bad";
-  feedback.textContent="Elige una respuesta en los tres apartados antes de comprobar.";
-  return;
- }
- const answer=[$("suspect").value,$("room").value,$("object").value];
- if(answer.every((v,i)=>v===c.answer[i])){
-  solved[current]=true;
-  feedback.className="good";
-  feedback.textContent=current===cases.length-1
-   ?"¡Caso resuelto! 🏆 Has completado todos los misterios de esta demo. ¡Eres detective de MisterioKU!"
-   :"¡Correcto! 🎉 Has resuelto el caso. Ya puedes avanzar al siguiente misterio.";
-  $("nextArea").hidden=false;
-  $("check").disabled=true;
-  $("hint").disabled=true;
-  $("bar").style.width=(solved.filter(Boolean).length/cases.length*100)+"%";
- }else{
-  feedback.className="bad";
-  feedback.textContent="Todavía no es correcto. Relee las pistas, descarta opciones y vuelve a intentarlo.";
- }
+$("resetBtn").addEventListener("click",() => {
+  resetMarks();
+  render();
+  showMessage("Has borrado tus marcas. Puedes empezar de nuevo cuando quieras.","bad");
 });
-$("next").addEventListener("click",()=>{
- if(current===cases.length-1){
-  current=0;hintIndex=0;solved=[false,false,false];
- }else{
-  current++;hintIndex=0;
- }
- render();
- window.scrollTo({top:0,behavior:"smooth"});
+$("checkBtn").addEventListener("click",() => {
+  const c = cases[current];
+  const roomsOK = isGridCorrect(roomMarks,c.roomSolution);
+  const objectsOK = isGridCorrect(objectMarks,c.objectSolution);
+  if(roomsOK && objectsOK) {
+    solved[current] = true;
+    render();
+    if(current < cases.length-1) {
+      showMessage("¡Caso resuelto! Has relacionado correctamente todos los sospechosos, lugares y objetos. Ya puedes desbloquear el siguiente misterio.","good");
+    } else {
+      showMessage("¡Enhorabuena! Has resuelto los tres misterios de MisterioKU. ¡Eres una gran detective!","good");
+    }
+  } else {
+    showMessage("Todavía no está resuelto. Revisa las pistas y comprueba que has marcado con ✓ una sola solución por persona en cada cuadrícula. Las X son opcionales.","bad");
+  }
 });
+$("nextBtn").addEventListener("click",() => {
+  if(current < cases.length-1) {
+    current++;
+    revealedHint = -1;
+    resetMarks();
+    render();
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+});
+resetMarks();
 render();
 </script>
 </body>
